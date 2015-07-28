@@ -1,0 +1,4 @@
+*.pyc
+/zipch.egg-info
+/build
+/dist

@@ -7,7 +7,7 @@ setup(
     name='zipch',
     version=__version_str__,
     packages=find_packages(),
-    description='Switzerland zipcodes, cantons and municipalities database',
+    description='Database of zipcodes, cantons and municipalities for Switzerland',
     author='Sylvain Fankhauser',
     author_email='sylvain.fankhauser@liip.ch',
     url='https://github.com/sephii/zipch',

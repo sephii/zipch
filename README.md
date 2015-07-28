@@ -1,5 +1,5 @@
-Switzerland Zipcodes Database
-=============================
+Swiss zipcodes database
+=======================
 
 This library provides an easy way to look up a swiss zipcode and get its canton
 or municipality. Use it like this:

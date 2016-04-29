@@ -158,7 +158,7 @@ def extract_csv(zip_path, destination):
             )
 
         with zf.open(member_to_unzip) as zfp, \
-                open(destination, 'w') as dfp:
+                open(destination, 'wb') as dfp:
             dfp.write(zfp.read())
 
 

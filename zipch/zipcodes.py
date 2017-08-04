@@ -41,6 +41,7 @@ class ZipcodesDatabase(object):
                      0 et 99. Combinés à l'attribut PLZ, ils donnent
                      naissance au NPA6.
     Gemeindename     nom de la commune principale de la localité
+    BFS-Nr           numéro de la commune principale de la localité
     Kantonskürzel    abréviation du canton dans lequel la localité se trouve
                      majoritairement
     E                la coordonnée Est indique la position d’un point
@@ -89,7 +90,7 @@ class ZipcodesDatabase(object):
                 for line in csv_reader:
                     zipcode_mapping[int(line[1])] = Location(
                         official_name=line[0],
-                        canton=line[4],
+                        canton=line[5],
                         municipality=line[3]
                     )
             self.zipcode_mapping = zipcode_mapping

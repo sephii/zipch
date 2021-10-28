@@ -10,12 +10,13 @@ from collections import namedtuple
 def is_py3():
     return sys.version_info >= (3, 0)
 
+
 if is_py3():
     from urllib.request import urlretrieve
 else:
     from urllib import urlretrieve
 
-Location = namedtuple('Location', ['official_name', 'canton', 'municipality'])
+Location = namedtuple("Location", ["official_name", "canton", "municipality"])
 
 
 class ZipcodesDatabase(object):
@@ -51,7 +52,8 @@ class ZipcodesDatabase(object):
                      quelconque au sein du périmètre de la localité ou du code
                      postal.
     """
-    DOWNLOAD_URL = 'http://data.geo.admin.ch/ch.swisstopo-vd.ortschaftenverzeichnis_plz/PLZO_CSV_LV95.zip'  # NOQA
+
+    DOWNLOAD_URL = "http://data.geo.admin.ch/ch.swisstopo-vd.ortschaftenverzeichnis_plz/PLZO_CSV_LV95.zip"  # NOQA
 
     def __init__(self, file_path):
         """
@@ -84,14 +86,14 @@ class ZipcodesDatabase(object):
             self.download(overwrite=False)
 
             zipcode_mapping = {}
-            with UnicodeReader(self.file_path, delimiter=';', encoding='latin1') as csv_reader:
+            with UnicodeReader(
+                self.file_path, delimiter=";", encoding="latin1"
+            ) as csv_reader:
                 # Skip header
                 next(csv_reader)
                 for line in csv_reader:
                     zipcode_mapping[int(line[1])] = Location(
-                        official_name=line[0],
-                        canton=line[5],
-                        municipality=line[3]
+                        official_name=line[0], canton=line[5], municipality=line[3]
                     )
             self.zipcode_mapping = zipcode_mapping
 
@@ -106,7 +108,8 @@ class ZipcodesDatabase(object):
 
     def get_zipcodes_for_municipality(self, municipality):
         zipcodes = [
-            zipcode for zipcode, location in self.get_locations().items()
+            zipcode
+            for zipcode, location in self.get_locations().items()
             if location.municipality == municipality
         ]
 
@@ -117,7 +120,8 @@ class ZipcodesDatabase(object):
         Return the list of zipcodes for the given canton code.
         """
         zipcodes = [
-            zipcode for zipcode, location in self.get_locations().items()
+            zipcode
+            for zipcode, location in self.get_locations().items()
             if location.canton == canton
         ]
 
@@ -127,17 +131,24 @@ class ZipcodesDatabase(object):
         """
         Return the list of unique cantons, sorted by name.
         """
-        return sorted(list(set([
-            location.canton for location in self.get_locations().values()
-        ])))
+        return sorted(
+            list(set([location.canton for location in self.get_locations().values()]))
+        )
 
     def get_municipalities(self):
         """
         Return the list of unique municipalities, sorted by name.
         """
-        return sorted(list(set([
-            location.municipality for location in self.get_locations().values()
-        ])))
+        return sorted(
+            list(
+                set(
+                    [
+                        location.municipality
+                        for location in self.get_locations().values()
+                    ]
+                )
+            )
+        )
 
 
 def extract_csv(zip_path, destination):
@@ -149,17 +160,14 @@ def extract_csv(zip_path, destination):
     with zipfile.ZipFile(zip_path) as zf:
         member_to_unzip = None
         for member in zf.namelist():
-            if member.endswith('.csv'):
+            if member.endswith(".csv"):
                 member_to_unzip = member
                 break
 
         if not member_to_unzip:
-            raise LookupError(
-                "Couldn't find any CSV file in the archive"
-            )
+            raise LookupError("Couldn't find any CSV file in the archive")
 
-        with zf.open(member_to_unzip) as zfp, \
-                open(destination, 'wb') as dfp:
+        with zf.open(member_to_unzip) as zfp, open(destination, "wb") as dfp:
             dfp.write(zfp.read())
 
 
@@ -170,6 +178,7 @@ class UnicodeReader:
 
     See http://python3porting.com/problems.html#csv-api-changes
     """
+
     def __init__(self, filename, dialect=csv.excel, encoding="utf-8", **kw):
         self.filename = filename
         self.dialect = dialect
@@ -178,10 +187,9 @@ class UnicodeReader:
 
     def __enter__(self):
         if is_py3():
-            self.f = open(self.filename, 'rt', encoding=self.encoding,
-                          newline='')
+            self.f = open(self.filename, "rt", encoding=self.encoding, newline="")
         else:
-            self.f = open(self.filename, 'rb')
+            self.f = open(self.filename, "rb")
         self.reader = csv.reader(self.f, dialect=self.dialect, **self.kw)
         return self
 

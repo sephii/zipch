@@ -1,25 +1,19 @@
-# -*- coding: utf-8 -*-
 import csv
+import dataclasses
 import os
-import sys
 import tempfile
 import zipfile
-from collections import namedtuple
+from urllib.request import urlretrieve
 
 
-def is_py3():
-    return sys.version_info >= (3, 0)
+@dataclasses.dataclass
+class Location:
+    official_name: str
+    canton: str
+    municipality: str
 
 
-if is_py3():
-    from urllib.request import urlretrieve
-else:
-    from urllib import urlretrieve
-
-Location = namedtuple("Location", ["official_name", "canton", "municipality"])
-
-
-class ZipcodesDatabase(object):
+class ZipcodesDatabase:
     """
     Database of swiss zipcodes.
 
@@ -31,7 +25,7 @@ class ZipcodesDatabase(object):
 
         >>> zd = ZipcodesDatabase('/tmp/zipcodes')
         >>> zd.get_location(1003)
-        Location(official_name=u'Lausanne', canton=u'VD', municipality=u'Lausanne')
+        Location(official_name='Lausanne', canton='VD', municipality='Lausanne')
 
     The CSV file has the following fields, in this order:
 
@@ -82,20 +76,21 @@ class ZipcodesDatabase(object):
         Return the zipcodes mapping as a list of ``{zipcode: location}`` dicts.
         The zipcodes file will be downloaded if necessary.
         """
-        if not self.zipcode_mapping:
-            self.download(overwrite=False)
+        if self.zipcode_mapping:
+            return self.zipcode_mapping
 
-            zipcode_mapping = {}
-            with UnicodeReader(
-                self.file_path, delimiter=";", encoding="latin1"
-            ) as csv_reader:
-                # Skip header
-                next(csv_reader)
-                for line in csv_reader:
-                    zipcode_mapping[int(line[1])] = Location(
-                        official_name=line[0], canton=line[5], municipality=line[3]
-                    )
-            self.zipcode_mapping = zipcode_mapping
+        self.download(overwrite=False)
+
+        zipcode_mapping = {}
+        with open(self.file_path) as csv_file:
+            csv_reader = csv.reader(csv_file, delimiter=";")
+            # Skip header
+            next(csv_reader)
+            for line in csv_reader:
+                zipcode_mapping[int(line[1])] = Location(
+                    official_name=line[0], canton=line[5], municipality=line[3]
+                )
+        self.zipcode_mapping = zipcode_mapping
 
         return self.zipcode_mapping
 
@@ -169,40 +164,3 @@ def extract_csv(zip_path, destination):
 
         with zf.open(member_to_unzip) as zfp, open(destination, "wb") as dfp:
             dfp.write(zfp.read())
-
-
-class UnicodeReader:
-    """
-    CSV handling in Python 2 and Python 3 is a bit different. This is to ensure
-    compatibility.
-
-    See http://python3porting.com/problems.html#csv-api-changes
-    """
-
-    def __init__(self, filename, dialect=csv.excel, encoding="utf-8", **kw):
-        self.filename = filename
-        self.dialect = dialect
-        self.encoding = encoding
-        self.kw = kw
-
-    def __enter__(self):
-        if is_py3():
-            self.f = open(self.filename, "rt", encoding=self.encoding, newline="")
-        else:
-            self.f = open(self.filename, "rb")
-        self.reader = csv.reader(self.f, dialect=self.dialect, **self.kw)
-        return self
-
-    def __exit__(self, type, value, traceback):
-        self.f.close()
-
-    def next(self):
-        row = next(self.reader)
-        if is_py3():
-            return row
-        return [s.decode(self.encoding) for s in row]
-
-    __next__ = next
-
-    def __iter__(self):
-        return self

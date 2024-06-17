@@ -73,3 +73,11 @@ You can use the `lv95_to_wgs84` function to convert these coordinates to regular
 
 Coordinates in regular WGS84 format are available in the `wgs84_coordinates`
 attribute.
+
+Releasing a version
+-------------------
+
+* Update the version in `pyproject.toml`
+* Create a git tag
+* `python -m build`
+* `python -m twine upload dist/*`

@@ -45,8 +45,8 @@ def lv95_to_wgs84(lv95_coordinates: Lv95Coordinates) -> Wgs84Coordinates:
             d("2.6779094")
             + d("4.728982") * y
             + d("0.791484") * y * x
-            + d("0.1306") * y * x ** 2
-            - d("0.0436") * y ** 3
+            + d("0.1306") * y * x**2
+            - d("0.0436") * y**3
         )
         * 100
         / 36
@@ -55,10 +55,10 @@ def lv95_to_wgs84(lv95_coordinates: Lv95Coordinates) -> Wgs84Coordinates:
         (
             d("16.9023892")
             + d("3.238272") * x
-            - d("0.270978") * y ** 2
-            - d("0.002528") * x ** 2
-            - d("0.0447") * y ** 2 * x
-            - d("0.0140") * x ** 3
+            - d("0.270978") * y**2
+            - d("0.002528") * x**2
+            - d("0.0447") * y**2 * x
+            - d("0.0140") * x**3
         )
         * 100
         / 36
@@ -89,16 +89,24 @@ class ZipcodesDatabase:
     Zusatzziffer     La valeur des chiffres supplémentaires est comprise entre
                      0 et 99. Combinés à l'attribut PLZ, ils donnent
                      naissance au NPA6.
+    ZIP_ID           identifiant univoque du code postal (NPA6)
     Gemeindename     nom de la commune principale de la localité
     BFS-Nr           numéro de la commune principale de la localité
     Kantonskürzel    abréviation du canton dans lequel la localité se trouve
                      majoritairement
+    Adressenanteil   pourcentage représentant la proportion d’adresses
+                     associées à une combinaison ZIP_ID – commune.
     E                la coordonnée Est indique la position d’un point
                      quelconque au sein du périmètre de la localité ou du code
                      postal.
     N                la coordonnée Nord indique la position d’un point
                      quelconque au sein du périmètre de la localité ou du code
                      postal.
+    Sprache          Langue du nom de la localité. Pour les noms de localités
+                     multilingues, ceux-ci sont séparés par '/'.
+    Validity         Date d'entrée en vigueur du nom de la localité.
+
+    See https://www.swisstopo.admin.ch/fr/repertoire-officiel-des-localites
     """
 
     DOWNLOAD_URL = "https://data.geo.admin.ch/ch.swisstopo-vd.ortschaftenverzeichnis_plz/ortschaftenverzeichnis_plz/ortschaftenverzeichnis_plz_2056.csv.zip"  # NOQA
@@ -143,10 +151,10 @@ class ZipcodesDatabase:
             for line in csv_reader:
                 zipcode_mapping[int(line[1])] = Location(
                     official_name=line[0],
-                    canton=line[5],
-                    municipality=line[3],
+                    canton=line[6],
+                    municipality=line[4],
                     coordinates=Lv95Coordinates(
-                        E=decimal.Decimal(line[6]), N=decimal.Decimal(line[7])
+                        E=decimal.Decimal(line[8]), N=decimal.Decimal(line[9])
                     ),
                 )
         self.zipcode_mapping = zipcode_mapping

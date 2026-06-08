@@ -1,8 +1,8 @@
 [project]
 name = "zipch"
-version = "2.0.1"
+version = "2.1.0"
 authors = [
-  { name="Sylvain Fankhauser", email="sephi@fhtagn.top" },
+  { name="Sylvain Fankhauser", email="sephi@nibelheim.ch" },
 ]
 description = "Database of zipcodes, cantons and municipalities for Switzerland"
 readme = "README.md"
